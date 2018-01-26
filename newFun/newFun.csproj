@@ -77,43 +77,19 @@
       <DependentUpon>tutorialScreen.cs</DependentUpon>
     </Compile>
     <Compile Include="universialVariables.cs" />
-    <Compile Include="inGame.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="inGame.Designer.cs">
-      <DependentUpon>inGame.cs</DependentUpon>
-    </Compile>
-    <Compile Include="titleScreenUI.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="titleScreenUI.Designer.cs">
-      <DependentUpon>titleScreenUI.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="tutorial.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="tutorial.Designer.cs">
-      <DependentUpon>tutorial.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="endScreen.resx">
       <DependentUpon>endScreen.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="gameScreen.resx">
       <DependentUpon>gameScreen.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="inGame.resx">
-      <DependentUpon>inGame.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="startupForm.resx">
       <DependentUpon>startupForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="titleScreen.resx">
       <DependentUpon>titleScreen.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="titleScreenUI.resx">
-      <DependentUpon>titleScreenUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -125,9 +101,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="tutorial.resx">
-      <DependentUpon>tutorial.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="tutorialScreen.resx">
       <DependentUpon>tutorialScreen.cs</DependentUpon>
     </EmbeddedResource>

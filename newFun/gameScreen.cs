@@ -14,6 +14,7 @@ namespace newFun
 {
     public partial class gameScreen : UserControl
     {
+        #region variables
         const int cpuIndex = 7;
         const int playerIndex = 8;
 
@@ -64,9 +65,13 @@ namespace newFun
         int previous;
 
         Point cpuP;
+        Point textStartPoint;
+        Point textStopPoint;
+        Point bottomPanelPoint;
 
         Graphics offScreen;
         Graphics gGraphics;
+        Graphics health;
 
         Bitmap bm;
         Bitmap Bazooka;
@@ -75,24 +80,26 @@ namespace newFun
         Bitmap Lt;
         Bitmap Soldier;
         Bitmap Sniper;
-        Point textStartPoint;
-        Point textStopPoint;
-        Point bottomPanelPoint;
         Bitmap imgPlayerChoice;
         Bitmap imgCpuChoice;
         Bitmap fire = new Bitmap(Properties.Resources.redComet, 50, 50);
         Bitmap Efire = new Bitmap(Properties.Resources.redComet, 50, 50);
-        Graphics health;
 
         SoundPlayer attack = new SoundPlayer(Properties.Resources.Tank_Firing);
+        #endregion
 
+        #region init
         public gameScreen()
         {
             InitializeComponent();
 
+            //background music \/
+
             variables.BMPlayer.Open(new Uri(Application.StartupPath + "/Resources/battle_music.mp3"));        
             variables.BMPlayer.Stop();
             variables.BMPlayer.Play();
+
+            // decides what mode the player chose \/
 
             if (variables.mode == "expert")
             {
@@ -109,10 +116,7 @@ namespace newFun
                 }
             }
 
-            ///to do
-            ///clean up tutorial screen
-            ///add sounds to tutorial
-            ///improve UI
+            // graphics initialization \/
             
             xStart = -100;
             xStop = 50;
@@ -129,100 +133,72 @@ namespace newFun
             Efire.RotateFlip(RotateFlipType.Rotate180FlipY);
         }
 
-        private void textSlider()
+        private void gameScreen_Resize(object sender, EventArgs e) // fits the ui to the screen
         {
-            BazookaButton.Checked = false;
-            slidingTextTimer.Enabled = true;
+            bottomPanelPoint = new Point(0, textStartPoint.Y + turnSlideLabel.Height);
+            bottomPanel.Size = new Size(screenControl.screenWidth, screenControl.screenHeight - bottomPanelPoint.Y);
+            bottomPanel.Location = bottomPanelPoint;
+
+            organizeControls(playerUnits, true); // organizes the unit selections
+            organizeControls(cpuUnits, false);
+
+            playerSoldierHealth.Text = "" + matchupData.Tables[playerIndex].Columns[0].DefaultValue;
+            cpuSoldierHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[0].DefaultValue;
+            playerSniperHealth.Text = "" + matchupData.Tables[playerIndex].Columns[1].DefaultValue;
+            cpuSniperHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[1].DefaultValue;
+            playerBazookaHealth.Text = "" + matchupData.Tables[playerIndex].Columns[2].DefaultValue;
+            cpuBazookaHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[2].DefaultValue;
+            playerLtHealth.Text = "" + matchupData.Tables[playerIndex].Columns[3].DefaultValue;
+            cpuLtHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[3].DefaultValue;
+            playerMdHealth.Text = "" + matchupData.Tables[playerIndex].Columns[4].DefaultValue;
+            cpuMdHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[4].DefaultValue;
+            playerHvyHealth.Text = "" + matchupData.Tables[playerIndex].Columns[5].DefaultValue;
+            cpuHvyHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[5].DefaultValue;
+            playerAntiTankHealth.Text = "" + matchupData.Tables[playerIndex].Columns[6].DefaultValue;
+            cpuAntiTankHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[6].DefaultValue;
+            topPanel.Size = new Size(screenControl.screenWidth, bottomPanelPoint.Y);
+            topPanel.Location = new Point(0, 0);
+
+            bm = new Bitmap(Width, Height);
+            offScreen = Graphics.FromImage(bm);
+            gGraphics = bottomPanel.CreateGraphics();
+
+            xEStop = bottomPanel.Width - 300;
+            cpuP = new Point(this.Width - cpuUnits.Width - 20, cpuUnits.Location.Y);
+            cpuUnits.Location = cpuP;
+            cpuSoldierHealth.Location = new Point(this.Width - cpuSoldierHealth.Width - 145, cpuSoldierHealth.Location.Y);
+            cpuSniperHealth.Location = new Point(this.Width - cpuSniperHealth.Width - 145, cpuSniperHealth.Location.Y);
+            cpuBazookaHealth.Location = new Point(this.Width - cpuBazookaHealth.Width - 145, cpuBazookaHealth.Location.Y);
+            cpuLtHealth.Location = new Point(this.Width - cpuLtHealth.Width - 145, cpuLtHealth.Location.Y);
+            cpuMdHealth.Location = new Point(this.Width - cpuMdHealth.Width - 145, cpuMdHealth.Location.Y);
+            cpuHvyHealth.Location = new Point(this.Width - cpuHvyHealth.Width - 145, cpuHvyHealth.Location.Y);
+            cpuAntiTankHealth.Location = new Point(this.Width - cpuAntiTankHealth.Width - 145, cpuAntiTankHealth.Location.Y);
+            textStartPoint = new Point(0 - turnSlideLabel.Width, 1);
+            textStopPoint = new Point(this.Width, 1);
+            attackButton.Location = new Point(topPanel.Width / 2 - attackButton.Width + 40, topPanel.Height / 2 - 3);
+            textSlider();
         }
-        private void BMPlayer_MediaEnded(object sender, EventArgs e)
-        {
-            variables.BMPlayer.Open(new Uri(Application.StartupPath + "/Resources/battle_music.mp3"));
-            variables.BMPlayer.Stop();
-            variables.BMPlayer.Play();
-        }
-        private void troopSelection_SelectedValueChanged(object sender, EventArgs e)
-        {
-            if (choiceFlicker.Enabled)
-            {
-                healthFlicker = 0;
-            }
+        #endregion init
 
-            int index = getCheckedIndex(panel1, sender);
-            int indexE = getCheckedIndex(panel2, sender);
-
-            if (index != -1)
-            {
-                hasPlayerSelected = true;
-            }
-
-            if(indexE != -1)
-            {
-                targetSelected = true;
-            }
-
-            switch (index)
-            {
-                case 0:
-                    btn = SoldierButton;
-                    break;
-                case 1:
-                    btn = SniperButton;
-                    break;
-                case 2:
-                    btn = BazookaButton;
-                    break;
-                case 3:
-                    btn = LtButton;
-                    break;
-                case 4:
-                    btn = MdButton;
-                    break;
-                case 5:
-                    btn = HvyButton;
-                    break;
-                case 6:
-                    btn = AntiTankButton;
-                    break;
-                default:
-                    hasPlayerSelected = false;
-                    targetSelected = false;
-                    break;
-            }
-
-            targetInt = index;
-
-            if (targetSelected && Convert.ToInt16(matchupData.Tables[playerIndex].Columns[targetInt].DefaultValue) != 0 && Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuTarget].DefaultValue) != 0)
-            {
-                choiceFlicker.Enabled = true;
-                button1.Visible = true;
-            }
-            else if(targetSelected)
-            {
-                button1.Visible = false;
-                choiceFlicker.Enabled = false;
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[panel2.Controls[cpuTarget].Text].DefaultValue;
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
-                healthFlicker = 0;
-            }
-
-        }
-
+        #region logic
         private void matchUps(int PlayerChoice, int cpuChoice, int health, int enemyHealth)
         {
-            if (yourTurn)
+            //this calculates the damages for the units
+            if (yourTurn) // if player turn, the player will attack first
             {
+                // damage formula \/ ( get player & cpu units, find damage value in the matchup dataset, and do: damage * health % )
                 int playerPotentialDamage = Convert.ToInt16(matchupData.Tables[PlayerChoice].Columns["enemy" + cpuCompile].DefaultValue);
                 int playerActualDamage = playerPotentialDamage * health / 100;
                 enemyHealth -= playerActualDamage;
 
-                if (enemyHealth <= 0)
+                if (enemyHealth <= 0) // if the enemy is destroied, they won't attack back
                 {
                     enemyHealth = 0;
                     willDestroy = true;
                     matchupData.Tables[7].Columns[cpuCompile].DefaultValue = 0;
                 }
 
-                if (enemyHealth > 0)
+                if (enemyHealth > 0) // if not, calc damage after player deals damage
                 {
                     int cpuPotentialDamage = Convert.ToInt16(matchupData.Tables[cpuChoice].Columns["enemy" + playerCompile].DefaultValue);
                     int cpuActualDamage = cpuPotentialDamage * enemyHealth / 100;
@@ -235,7 +211,7 @@ namespace newFun
                     }
                 }
             }
-            else
+            else // if not player turn, select rnd player unit to attack
             {
                 int rndPlayerSlection = rndGen.Next(0, 7);
 
@@ -271,6 +247,8 @@ namespace newFun
                         break;
                 }
 
+                // then use the Ai func to find the best counter 
+
                 cpuCompile = Ai(rndPlayerSlection, matchupData);
 
                 switch (cpuCompile)
@@ -298,17 +276,19 @@ namespace newFun
                         break;
                 }
 
+                // this time the ememy will attack first
+
                 int cpuPotentialDamage = Convert.ToInt16(matchupData.Tables[cpuCompile + "Matchup"].Columns[rndPlayerSlection].DefaultValue);
                 int cpuActualDamage = cpuPotentialDamage * Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue) / 100;
                 health -= cpuActualDamage;
 
-                if (health <= 0)
+                if (health <= 0) // if the player is destroied, do not counter
                 {
                     health = 0;
                     willDestroy = true;
                 }
 
-                if (health > 0)
+                if (health > 0) // else calc counter damage
                 {
                     int playerPotentialDamage = Convert.ToInt16(matchupData.Tables[rndPlayerSlection].Columns["enemy" + cpuCompile].DefaultValue);
                     int playerActualDamage = playerPotentialDamage * health / 100;
@@ -323,16 +303,18 @@ namespace newFun
                 }
             }
 
+            // modifies the health tables for the player and cpu \/
+
             matchupData.Tables[playerIndex].Columns[playerCompile].DefaultValue = health;
             matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue = enemyHealth;
         }
 
-        private String Ai(int playerChoice, DataSet dataSet)
+        private String Ai(int playerChoice, DataSet dataSet) // this is the logic to finding the proper counter to the chosen unit
         {
             int maxValue = 0;
             string cpuSelection = "";
 
-            for (int cycle = 0; cycle < dataSet.Tables.Count - 2; cycle++)
+            for (int cycle = 0; cycle < dataSet.Tables.Count - 2; cycle++) // cycle thru the matchups for the highest value, (takes into account health) and set the cpu selection to that unit
             {
                 if (Convert.ToInt16(dataSet.Tables[cycle].Columns[playerChoice].DefaultValue) * Convert.ToInt16(dataSet.Tables[cpuIndex].Columns[cycle].DefaultValue) / 100 > maxValue && Convert.ToInt16(dataSet.Tables[cpuIndex].Columns[cycle].DefaultValue) != 0)
                 {
@@ -341,6 +323,8 @@ namespace newFun
                 }
 
             }
+
+            // this is a safety mesure in case the AI selects a troop with no health \/ (this should never be used, but just in case)
 
             if (cpuSelection == "")
             {
@@ -353,7 +337,7 @@ namespace newFun
                 }
             }
 
-            switch (cpuSelection)
+            switch (cpuSelection) // assign the properties according to the chosen unit
             {
                 case "SoldierMatchup":
                     cpuSelection = "Soldier";
@@ -392,21 +376,95 @@ namespace newFun
                     break;
             }
 
-            return cpuSelection;
+            return cpuSelection; // returns the troop name in a string
         }
+        #endregion logic
 
-        private void cpuUnits_SelectedValueChanged(object sender, EventArgs e)
+        #region userResponse
+        private void troopSelection_SelectedValueChanged(object sender, EventArgs e)
         {
-            if (choiceFlicker.Enabled)
+            if (choiceFlicker.Enabled) // if the damage flicker is on reset it
             {
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[panel2.Controls[cpuTarget].Text].DefaultValue;
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
                 healthFlicker = 0;
             }
 
-            cpuTarget = getCheckedIndex(panel2, sender);
+            int index = getCheckedIndex(playerUnits, sender);
+
+            if (index != -1)
+            {
+                hasPlayerSelected = true;
+            }
+
+            if (cpuTarget != -1)
+            {
+                targetSelected = true;
+            }
+
+            //damage flicker setup ^
+
+            switch (index) // stores the button chosen to btn for later
+            {
+                case 0:
+                    btn = SoldierButton;
+                    break;
+                case 1:
+                    btn = SniperButton;
+                    break;
+                case 2:
+                    btn = BazookaButton;
+                    break;
+                case 3:
+                    btn = LtButton;
+                    break;
+                case 4:
+                    btn = MdButton;
+                    break;
+                case 5:
+                    btn = HvyButton;
+                    break;
+                case 6:
+                    btn = AntiTankButton;
+                    break;
+                default:
+                    hasPlayerSelected = false;
+                    targetSelected = false;
+                    break;
+            }
+
+            targetInt = index;
+
+            //checks is the target is valid \/
+
+            if (targetSelected && Convert.ToInt16(matchupData.Tables[playerIndex].Columns[targetInt].DefaultValue) != 0 && Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuTarget].DefaultValue) != 0)
+            {
+                choiceFlicker.Enabled = true;
+                attackButton.Visible = true;
+            }
+            else if (targetSelected) // if not valid, reset
+            {
+                attackButton.Visible = false;
+                choiceFlicker.Enabled = false;
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[cpuUnits.Controls[cpuTarget].Text].DefaultValue;
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
+                healthFlicker = 0;
+            }
+
+        }
+
+        private void cpuUnits_SelectedValueChanged(object sender, EventArgs e) // when the user selects a target
+        {
+            if (choiceFlicker.Enabled) // if the health label is already flickering...
+            {
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[cpuUnits.Controls[cpuTarget].Text].DefaultValue;
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
+                healthFlicker = 0;
+            }
+            
+            //checks if the player has chosen a) their own unit, and b) a target \/
+
+            cpuTarget = getCheckedIndex(cpuUnits, sender); // this func returns -1 by default (if there is no selected unit)
             int index = cpuTarget;
-            int indexP = getCheckedIndex(panel1, sender);
+            int indexP = getCheckedIndex(playerUnits, sender);
 
             if (index != -1)
             {
@@ -423,7 +481,7 @@ namespace newFun
                 hasPlayerSelected = false;
             }
 
-            switch (index)
+            switch (index) //asign the btn control associated with the selected enemy unit to Ebtn
             {
                 case 0:
                     Ebtn = cpuSoldierButton;
@@ -448,41 +506,166 @@ namespace newFun
                     break;
                 default:
                     hasPlayerSelected = false;
-                    targetSelected = false;
+                    targetSelected = false; // should never occur, but is a safety
                     break;
             }
-            
-            choiceFlicker.Enabled = false;
 
+            //if the user has picked vaild targets (ones with at least 1 health)
             if (hasPlayerSelected && targetSelected && hasPlayerSelected && Convert.ToInt16(matchupData.Tables[playerIndex].Columns[targetInt].DefaultValue) != 0 && Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuTarget].DefaultValue) != 0)
             {
-                button1.Visible = true;
-                previous = Convert.ToInt16(topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].Text);
+                attackButton.Visible = true;
+                previous = Convert.ToInt16(topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].Text);
                 choiceFlicker.Enabled = true;
             }
-            else if(targetSelected)
+            else if(targetSelected) // if invalid, turn off flicker and remove attack option
             {
-                button1.Visible = false;
+                attackButton.Visible = false;
                 choiceFlicker.Enabled = false;
-
-                if(previous == 0)
-                {
-                    previous = 100;
-                }
-
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[panel2.Controls[cpuTarget].Text].DefaultValue;
-                topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].Text = "" + matchupData.Tables[cpuIndex].Columns[cpuUnits.Controls[cpuTarget].Text].DefaultValue;
+                topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"].ForeColor = Color.White;
                 healthFlicker = 0;
             }
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e) // when the attack button is pushed
         {
+            yourTurn = true;
+            Ebtn.Checked = false; // unchecks the unit selections
+            btn.Checked = false;
+            choiceFlicker.Enabled = false;
+
+            switch (targetInt) // assigns the properties to the unit choice
+            {
+                case 0:
+                    playerSelection = 0;
+                    playerCompile = "Soldier";
+                    imgPlayerChoice = Soldier;
+                    break;
+                case 1:
+                    playerSelection = 1;
+                    playerCompile = "Sniper";
+                    imgPlayerChoice = Sniper;
+                    break;
+                case 2:
+                    playerSelection = 2;
+                    playerCompile = "Bazooka";
+                    imgPlayerChoice = Bazooka;
+                    break;
+                case 3:
+                    playerSelection = 3;
+                    playerCompile = "Lt";
+                    imgPlayerChoice = Lt;
+                    break;
+                case 4:
+                    playerSelection = 4;
+                    playerCompile = "Md";
+                    imgPlayerChoice = Md;
+                    break;
+                case 5:
+                    playerSelection = 5;
+                    playerCompile = "Hvy";
+                    imgPlayerChoice = Hvy;
+                    break;
+                case 6:
+                    playerSelection = 6;
+                    playerCompile = "AntiTank";
+                    imgPlayerChoice = Properties.Resources.ATIcon;
+                    break;
+            }
+
+            isPlayerAnimation = true;
+
+            if (targetSelected) // if the user has chosen a target (this is a fail safe, once again it shouldn't need this), it does essentially the same stuff as before
+            {
+                cpuCompile = "" + matchupData.Tables[cpuIndex].Columns[cpuTarget].ColumnName;
+                cpuNumberSelection = cpuTarget;
+                matchUps(playerSelection, cpuNumberSelection, Convert.ToInt16(matchupData.Tables[playerIndex].Columns[playerCompile].DefaultValue), Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue));
+                turnCounter++;
+                targetSelected = false;
+
+                switch (cpuTarget)
+                {
+                    case 0:
+                        imgCpuChoice = Soldier;
+                        cpuNumberSelection = 0;
+                        break;
+                    case 1:
+                        imgCpuChoice = Sniper;
+                        cpuNumberSelection = 1;
+                        break;
+                    case 2:
+                        imgCpuChoice = Bazooka;
+                        cpuNumberSelection = 2;
+                        break;
+                    case 3:
+                        imgCpuChoice = Lt;
+                        cpuNumberSelection = 3;
+                        break;
+                    case 4:
+                        imgCpuChoice = Md;
+                        cpuNumberSelection = 4;
+                        break;
+                    case 5:
+                        imgCpuChoice = Hvy;
+                        cpuNumberSelection = 5;
+                        break;
+                    case 6:
+                        imgCpuChoice = Properties.Resources.ATIcon;
+                        cpuNumberSelection = 6;
+                        break;
+                }
+                // adjusting the anim values \/
+                yStart = bottomPanel.Height - Properties.Resources.ATIcon.Height;
+                yStop = bottomPanel.Height - Properties.Resources.ATIcon.Height;
+                xEStart = bottomPanel.Width + 100;
+                yEStart = yStart;
+                yEStop = yStop;
+                EanimationDone = false;
+                animationDone = false;
+                movebackAnim = false;
+                EmovebackAnim = false;
+                isAnimationComplete = false;
+                isTurnDoneDisplaying = false;
+
+                xStart = -100;
+                index = 0;
+                Eindex = 0;
+                flickerIndex = 0;
+                waitCount = 0;
+                waitECount = 0;
+                animationTimer.Enabled = true;
+                attackButton.Visible = false;
+                targetSelected = false;
+                hasPlayerSelected = false;
+                btn.Checked = false;
+                hasPlayerSelected = false;
+                targetSelected = false;
+                btn.Checked = false;
+                yourTurn = false;
+            }
+        }
+        #endregion userResponse
+
+        #region animation
+        private void textSlider()
+        {
+            //slides text across screen
+            BazookaButton.Checked = false;
+            slidingTextTimer.Enabled = true;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e) // main timer, the animation timer any errors in animation will likely occur here
+        {
+            // draw the anim
             animation(imgPlayerChoice, imgCpuChoice, Properties.Resources.ATIcon.Height, Properties.Resources.ATIcon.Height, isPlayerAnimation, willDestroy, willCounterDestroy);
             gGraphics.DrawImage(bm, 0, 0);
+
+            // clear the anti-flicker screen \/
+
             offScreen.Clear(Color.Green);
         }
 
+        // this the bulk of the code, unfortunately this is very finiky, any changes here could cause major problems (even in the main code)
         private void animation(Bitmap image, Bitmap Eimage, int imgHeight, int imgEHeight, bool isYourTurn, bool isDestruction, bool isCounterDestruction)
         {
             yStart = bottomPanel.Height - imgHeight;
@@ -824,291 +1007,6 @@ namespace newFun
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            yourTurn = true;
-            Ebtn.Checked = false;
-            btn.Checked = false;
-            choiceFlicker.Enabled = false;
-
-            switch (targetInt)
-            {
-                case 0:
-                    playerSelection = 0;
-                    playerCompile = "Soldier";
-                    imgPlayerChoice = Soldier;
-                    break;
-                case 1:
-                    playerSelection = 1;
-                    playerCompile = "Sniper";
-                    imgPlayerChoice = Sniper;
-                    break;
-                case 2:
-                    playerSelection = 2;
-                    playerCompile = "Bazooka";
-                    imgPlayerChoice = Bazooka;
-                    break;
-                case 3:
-                    playerSelection = 3;
-                    playerCompile = "Lt";
-                    imgPlayerChoice = Lt;
-                    break;
-                case 4:
-                    playerSelection = 4;
-                    playerCompile = "Md";
-                    imgPlayerChoice = Md;
-                    break;
-                case 5:
-                    playerSelection = 5;
-                    playerCompile = "Hvy";
-                    imgPlayerChoice = Hvy;
-                    break;
-                case 6:
-                    playerSelection = 6;
-                    playerCompile = "AntiTank";
-                    imgPlayerChoice = Properties.Resources.ATIcon;
-                    break;
-            }
-
-            isPlayerAnimation = true;
-
-            if (targetSelected)
-            {
-                cpuCompile = "" + matchupData.Tables[cpuIndex].Columns[cpuTarget].ColumnName;
-                cpuNumberSelection = cpuTarget;
-                matchUps(playerSelection, cpuNumberSelection, Convert.ToInt16(matchupData.Tables[playerIndex].Columns[playerCompile].DefaultValue), Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue));
-                turnCounter++;
-                targetSelected = false;
-
-                switch (cpuTarget)
-                {
-                    case 0:
-                        imgCpuChoice = Soldier;
-                        cpuNumberSelection = 0;
-                        break;
-                    case 1:
-                        imgCpuChoice = Sniper;
-                        cpuNumberSelection = 1;
-                        break;
-                    case 2:
-                        imgCpuChoice = Bazooka;
-                        cpuNumberSelection = 2;
-                        break;
-                    case 3:
-                        imgCpuChoice = Lt;
-                        cpuNumberSelection = 3;
-                        break;
-                    case 4:
-                        imgCpuChoice = Md;
-                        cpuNumberSelection = 4;
-                        break;
-                    case 5:
-                        imgCpuChoice = Hvy;
-                        cpuNumberSelection = 5;
-                        break;
-                    case 6:
-                        imgCpuChoice = Properties.Resources.ATIcon;
-                        cpuNumberSelection = 6;
-                        break;
-                }
-
-                yStart = bottomPanel.Height - Properties.Resources.ATIcon.Height;
-                yStop = bottomPanel.Height - Properties.Resources.ATIcon.Height;
-                xEStart = bottomPanel.Width + 100;
-                yEStart = yStart;
-                yEStop = yStop;
-                EanimationDone = false;
-                animationDone = false;
-                movebackAnim = false;
-                EmovebackAnim = false;
-                isAnimationComplete = false;
-                isTurnDoneDisplaying = false;
-
-                xStart = -100;
-                index = 0;
-                Eindex = 0;
-                flickerIndex = 0;
-                waitCount = 0;
-                waitECount = 0;
-                animationTimer.Enabled = true;
-                button1.Visible = false;
-                targetSelected = false;
-                hasPlayerSelected = false;
-                btn.Checked = false;
-                hasPlayerSelected = false;
-                targetSelected = false;
-                btn.Checked = false;
-                yourTurn = false;
-            }           
-        }
-
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            if (isAnimationComplete)
-            {
-                if (isTurnDoneDisplaying)
-                {
-                    yourTurn = false;
-                    isPlayerAnimation = false;
-                    isAnimationComplete = false;
-                    int rndPlayerSlection = rndGen.Next(0, 7);
-
-                    while (Convert.ToInt16(matchupData.Tables[playerIndex].Columns[rndPlayerSlection].DefaultValue) == 0)
-                    {
-                        rndPlayerSlection = rndGen.Next(0, 7);
-                    }
-
-                    playerCompile = matchupData.Tables[playerIndex].Columns[rndPlayerSlection].ColumnName;
-
-                    switch (rndPlayerSlection)
-                    {
-                        case 0:
-                            imgPlayerChoice = Soldier;
-                            break;
-                        case 1:
-                            imgPlayerChoice = Sniper;
-                            break;
-                        case 2:
-                            imgPlayerChoice = Bazooka;
-                            break;
-                        case 3:
-                            imgPlayerChoice = Lt;;
-                            break;
-                        case 4:
-                            imgPlayerChoice = Md;
-                            break;
-                        case 5:
-                            imgPlayerChoice = Hvy;
-                            break;
-                        case 6:
-                            imgPlayerChoice = Properties.Resources.ATIcon;
-                            break;
-                    }
-
-                    cpuCompile = Ai(rndPlayerSlection, matchupData);
-
-                    switch (cpuCompile)
-                    {
-                        case "Soldier":
-                            imgCpuChoice = Soldier;
-                            break;
-                        case "Sniper":
-                            imgCpuChoice = Sniper;
-                            break;
-                        case "Bazooka":
-                            imgCpuChoice = Bazooka;
-                            break;
-                        case "Lt":
-                            imgCpuChoice = Lt;
-                            break;
-                        case "Md":
-                            imgCpuChoice = Md;
-                            break;
-                        case "Hvy":
-                            imgCpuChoice = Hvy;
-                            break;
-                        case "AntiTank":
-                            imgCpuChoice = Properties.Resources.ATIcon;
-                            break;
-                    }
-
-                    matchUps(playerSelection, cpuNumberSelection, Convert.ToInt16(matchupData.Tables[playerIndex].Columns[playerCompile].DefaultValue), Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue));
-
-                    yStart = bottomPanel.Height - Properties.Resources.ATIcon.Height;
-                    yStop = bottomPanel.Height - Properties.Resources.ATIcon.Height;
-                    xEStart = bottomPanel.Width + 100;
-                    yEStart = yStart;
-                    yEStop = yStop;
-                    EanimationDone = false;
-                    animationDone = false;
-                    movebackAnim = false;
-                    EmovebackAnim = false;
-                    xStart = -100;
-                    index = 0;
-                    Eindex = 0;
-                    flickerIndex = 0;
-                    waitCount = 0;
-                    waitECount = 0;
-                    animationTimer.Enabled = true;
-                    targetSelected = false;
-                    turnSlideLabel.Text = "Your Turn";
-                    turnCounter++;
-                }
-            }
-        }
-
-        private void timer3_Tick(object sender, EventArgs e)
-        {
-            gGraphics.Clear(Color.Green);
-            BazookaButton.Checked = false;
-            if (textStartPoint.X < textStopPoint.X)
-            {
-                if (yourTurn)
-                {
-                    gGraphics.DrawString("Your Turn", new System.Drawing.Font(FontFamily.GenericSansSerif, 36), new SolidBrush(Color.Black), textStartPoint);
-                }
-                else
-                {
-                    gGraphics.DrawString("Enemy Turn", new System.Drawing.Font(FontFamily.GenericSansSerif, 36), new SolidBrush(Color.Black), textStartPoint);
-                }
-
-                textStartPoint.X += 20;
-            }
-            else
-            {
-                isTurnDoneDisplaying = true;
-                turnSlideLabel.Visible = false;
-                clearUi(false);
-
-                if(!yourTurn)
-                {
-                    turnSwap();
-                }
-                
-                textStartPoint = new Point(0 - turnSlideLabel.Width, textStartPoint.Y);
-                slidingTextTimer.Enabled = false;
-            }
-        }
-
-        private bool endGameCheck()
-        {
-            if (isAnimationComplete)
-            {
-                for (int i = 0; i < 7; i++)
-                {
-                    if (Convert.ToInt16(matchupData.Tables[playerIndex].Columns[i].DefaultValue) == 0)
-                    {
-                        unitDefeatedCount++;
-                    }
-
-                    if (Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[i].DefaultValue) == 0)
-                    {
-                        EunitDefeatedCount++;
-                    }
-                }
-
-                if (unitDefeatedCount == 7)
-                {
-                    gameEnd(false);
-                    clearUi(true);
-
-                    return false;
-                }
-                else if (EunitDefeatedCount == 7)
-                {
-                    gameEnd(true);
-                    clearUi(true);
-
-                    return false;
-                }
-                
-                EunitDefeatedCount = 0;
-                unitDefeatedCount = 0;
-            }
-
-            return true;
-        }
-
         private void clearUi(bool isClear)
         {
             if (isClear)
@@ -1121,78 +1019,99 @@ namespace newFun
             }
         }
 
-        private void gameEnd(bool didPlayerWin)
+        private void damageFlicker(Control c, int cpuhealth)
         {
-            clearUi(true);
-            variables.BMPlayer.Stop();
-
-            turnSlideLabel.Visible = false;
-            endGameLabel.Visible = true;
-            slidingTextTimer.Enabled = false;
-            animationTimer.Enabled = false;
-
-            if (didPlayerWin)
+            if (healthFlicker == 0) // if the flicker has been reset,
             {
-                variables.victory = true;
+                health = c.CreateGraphics();
+                c.Text = "" + cpuhealth;
+                c.ForeColor = Color.Green;
+            }
+            else // else cnt the flicker as it was
+            {
+                if (healthFlicker % 7 < 3)
+                {
+                    c.ForeColor = Color.Green; // half the time, green
+                }
+                else if (healthFlicker % 7 > 4)
+                {
+                    c.ForeColor = Color.White; // other half, white
+                }
+
+                if (!choiceFlicker.Enabled)
+                {
+                    c.Text = "" + matchupData.Tables[cpuIndex].Columns[c.Name]; // if the flicker is stopped, (anim, diff target) change back the label
+                    healthFlicker = 0;
+                }
+            }
+
+            healthFlicker++;
+        }
+
+        private void choiceFlicker_Tick(object sender, EventArgs e)
+        {
+            int tv1 = (Convert.ToInt16(matchupData.Tables[targetInt].Columns[cpuTarget].DefaultValue)); //damage
+            int tv2 = (Convert.ToInt16(matchupData.Tables[playerIndex].Columns[targetInt].DefaultValue)); // health
+            int tv3 = (Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuTarget].DefaultValue)); //e health
+            int tv = tv1 * tv2 / 100; // damage calc
+
+            if (tv3 - tv < 0) // if the attack will kill
+            {
+                damageFlicker(topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"], 0);
             }
             else
             {
-                variables.victory = false;
+                damageFlicker(topPanel.Controls["cpu" + cpuUnits.Controls[cpuTarget].Text + "Health"], tv3 - tv);
             }
-
-            screenControl.changeScreen(this, "EndScreen");
         }
 
-        private void gameScreen_Resize(object sender, EventArgs e)
+        private void timer3_Tick(object sender, EventArgs e) // this is the sliding text timer, for sliding the turn across the screen
         {
-            bottomPanelPoint = new Point(0, textStartPoint.Y + turnSlideLabel.Height);
-            bottomPanel.Size = new Size(screenControl.screenWidth, screenControl.screenHeight - bottomPanelPoint.Y);
-            bottomPanel.Location = bottomPanelPoint;
-            
-            organizeControls(panel1, true);
-            organizeControls(panel2, false);
+            gGraphics.Clear(Color.Green);
+            BazookaButton.Checked = false; // i don't know why, but for some reason this one gets checked at the beginning, so this unchecks it
+            if (textStartPoint.X < textStopPoint.X) // while the text is sliding, 
+            {
+                if (yourTurn)
+                {
+                    gGraphics.DrawString("Your Turn", new System.Drawing.Font(FontFamily.GenericSansSerif, 36), new SolidBrush(Color.Black), textStartPoint);
+                }
+                else
+                {
+                    gGraphics.DrawString("Enemy Turn", new System.Drawing.Font(FontFamily.GenericSansSerif, 36), new SolidBrush(Color.Black), textStartPoint);
+                }
 
-            playerSoldierHealth.Text = "" + matchupData.Tables[playerIndex].Columns[0].DefaultValue;
-            cpuSoldierHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[0].DefaultValue;
-            playerSniperHealth.Text = "" + matchupData.Tables[playerIndex].Columns[1].DefaultValue;
-            cpuSniperHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[1].DefaultValue;
-            playerBazookaHealth.Text = "" + matchupData.Tables[playerIndex].Columns[2].DefaultValue;
-            cpuBazookaHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[2].DefaultValue;
-            playerLtHealth.Text = "" + matchupData.Tables[playerIndex].Columns[3].DefaultValue;
-            cpuLtHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[3].DefaultValue;
-            playerMdHealth.Text = "" + matchupData.Tables[playerIndex].Columns[4].DefaultValue;
-            cpuMdHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[4].DefaultValue;
-            playerHvyHealth.Text = "" + matchupData.Tables[playerIndex].Columns[5].DefaultValue;
-            cpuHvyHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[5].DefaultValue;
-            playerAntiTankHealth.Text = "" + matchupData.Tables[playerIndex].Columns[6].DefaultValue;
-            cpuAntiTankHealth.Text = "" + matchupData.Tables[cpuIndex].Columns[6].DefaultValue;
-            topPanel.Size = new Size(screenControl.screenWidth, bottomPanelPoint.Y);
-            topPanel.Location = new Point(0, 0);
+                textStartPoint.X += 20;
+            }
+            else // if it is done,
+            {
+                isTurnDoneDisplaying = true;
+                turnSlideLabel.Visible = false;
+                clearUi(false);
 
-            bm = new Bitmap(Width, Height);
-            offScreen = Graphics.FromImage(bm);
-            gGraphics = bottomPanel.CreateGraphics();
+                if (!yourTurn)
+                {
+                    turnSwap(); // this is for the cpu attack and anim
+                }
 
-            xEStop = bottomPanel.Width - 300;
-            cpuP = new Point(this.Width - panel2.Width - 20, panel2.Location.Y);
-            panel2.Location = cpuP;
-            cpuSoldierHealth.Location = new Point(this.Width - cpuSoldierHealth.Width - 145, cpuSoldierHealth.Location.Y);
-            cpuSniperHealth.Location = new Point(this.Width - cpuSniperHealth.Width - 145, cpuSniperHealth.Location.Y);
-            cpuBazookaHealth.Location = new Point(this.Width - cpuBazookaHealth.Width - 145, cpuBazookaHealth.Location.Y);
-            cpuLtHealth.Location = new Point(this.Width - cpuLtHealth.Width - 145, cpuLtHealth.Location.Y);
-            cpuMdHealth.Location = new Point(this.Width - cpuMdHealth.Width - 145, cpuMdHealth.Location.Y);
-            cpuHvyHealth.Location = new Point(this.Width - cpuHvyHealth.Width - 145, cpuHvyHealth.Location.Y);
-            cpuAntiTankHealth.Location = new Point(this.Width - cpuAntiTankHealth.Width - 145, cpuAntiTankHealth.Location.Y);
-            textStartPoint = new Point(0 - turnSlideLabel.Width, 1);
-            textStopPoint = new Point(this.Width, 1);
-            button1.Location = new Point(topPanel.Width / 2 - button1.Width + 40, topPanel.Height / 2 - 3);
-            textSlider();
+                textStartPoint = new Point(0 - turnSlideLabel.Width, textStartPoint.Y);
+                slidingTextTimer.Enabled = false;
+            }
+        }
+        #endregion animation
+
+        #region misc 
+        private void BMPlayer_MediaEnded(object sender, EventArgs e) 
+        {
+            variables.BMPlayer.Open(new Uri(Application.StartupPath + "/Resources/battle_music.mp3"));
+            variables.BMPlayer.Stop();
+            variables.BMPlayer.Play();
+            //loops music
         }
 
-        private void turnSwap()
+        private void turnSwap() // when the player attacks, it will allot the enemy its turn
         {
             if (!yourTurn)
-            {
+            { // pretty much the same as the code above, decides a rnd target, and finds the best match for it
                 yourTurn = false;
                 isPlayerAnimation = false;
                 isAnimationComplete = false;
@@ -1256,7 +1175,7 @@ namespace newFun
                         imgCpuChoice = Properties.Resources.ATIcon;
                         break;
                 }
-
+                // same as the player attack code
                 matchUps(playerSelection, cpuNumberSelection, Convert.ToInt16(matchupData.Tables[playerIndex].Columns[playerCompile].DefaultValue), Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuCompile].DefaultValue));
 
                 yStart = bottomPanel.Height - Properties.Resources.ATIcon.Height;
@@ -1280,13 +1199,13 @@ namespace newFun
             }
         }
 
-        private int getCheckedIndex(Panel panel, object sender)
+        private int getCheckedIndex(Panel panel, object sender) // finds the btn associated with the sender parma
         {
             int checkedIndex = -1;
 
-            for(int index = 0; index < panel.Controls.Count; index++)
+            for (int index = 0; index < panel.Controls.Count; index++)
             {
-                if(panel.Controls[index].Equals(sender))
+                if (panel.Controls[index].Equals(sender))
                 {
                     checkedIndex = index;
                 }
@@ -1294,7 +1213,7 @@ namespace newFun
 
             return checkedIndex;
         }
-        private void organizeControls(Panel panel, bool player)
+        private void organizeControls(Panel panel, bool player) // removes all cntrls, then adds them back in a managible order
         {
             Control soldier;
             Control sniper;
@@ -1324,7 +1243,7 @@ namespace newFun
                 hvy = panel.Controls["cpuHvyButton"];
                 at = panel.Controls["cpuAntiTankButton"];
             }
-           
+
             for (int x = 0; x < 7; x++)
             {
                 panel.Controls.RemoveAt(0);
@@ -1338,50 +1257,69 @@ namespace newFun
             panel.Controls.Add(hvy);
             panel.Controls.Add(at);
         }
-       private void damageFlicker(Control c, int cpuhealth)
+        #endregion
+
+        #region postGame
+        private bool endGameCheck() // checks the conditions for the game to end
         {
-            if (healthFlicker == 0)
+            if (isAnimationComplete)
             {
-                health = c.CreateGraphics();
-                c.Text = "" + cpuhealth;
-                c.ForeColor = Color.Green;
+                for (int i = 0; i < 7; i++)
+                {
+                    if (Convert.ToInt16(matchupData.Tables[playerIndex].Columns[i].DefaultValue) == 0) // for each defeated unit, add one to var below
+                    {
+                        unitDefeatedCount++;
+                    }
+
+                    if (Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[i].DefaultValue) == 0)
+                    {
+                        EunitDefeatedCount++;
+                    }
+                }
+
+                if (unitDefeatedCount == 7) // if all the player's units are dead, or all the cpu's units are dead end the game
+                {
+                    gameEnd(false);
+                    clearUi(true);
+
+                    return false;
+                }
+                else if (EunitDefeatedCount == 7)
+                {
+                    gameEnd(true);
+                    clearUi(true);
+
+                    return false;
+                }
+
+                EunitDefeatedCount = 0;
+                unitDefeatedCount = 0;
+            }
+
+            return true;
+        }
+
+        private void gameEnd(bool didPlayerWin) // ends the game
+        {
+            clearUi(true);
+            variables.BMPlayer.Stop();
+
+            turnSlideLabel.Visible = false;
+            endGameLabel.Visible = true;
+            slidingTextTimer.Enabled = false;
+            animationTimer.Enabled = false;
+
+            if (didPlayerWin) // to display the proper end screen 
+            {
+                variables.victory = true; 
             }
             else
             {
-                if (healthFlicker % 7 < 3)
-                {
-                    c.ForeColor = Color.Green;               
-                }
-                else if (healthFlicker % 7 > 4)
-                {
-                    c.ForeColor = Color.White;
-                }
-
-                if (!choiceFlicker.Enabled)
-                {
-                    c.Text = "" + matchupData.Tables[cpuIndex].Columns[c.Name];
-                    healthFlicker = 0;
-                }
+                variables.victory = false;
             }
 
-            healthFlicker++;
+            screenControl.changeScreen(this, "EndScreen");
         }
-
-        private void choiceFlicker_Tick(object sender, EventArgs e)
-        {          
-            int tv1 = (Convert.ToInt16(matchupData.Tables[targetInt].Columns[cpuTarget].DefaultValue)); //damage
-            int tv2 = (Convert.ToInt16(matchupData.Tables[playerIndex].Columns[targetInt].DefaultValue)); // health
-            int tv3 = (Convert.ToInt16(matchupData.Tables[cpuIndex].Columns[cpuTarget].DefaultValue)); //e health
-            int tv =  tv1 * tv2 / 100;
-
-            if (tv3 - tv < 0)
-            {
-                damageFlicker(topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"], 0);
-            }
-            else
-            {
-                damageFlicker(topPanel.Controls["cpu" + panel2.Controls[cpuTarget].Text + "Health"], tv3 - tv);
-            }
-        }
+        #endregion             
     }
  }

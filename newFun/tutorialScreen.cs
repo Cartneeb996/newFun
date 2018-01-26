@@ -14,6 +14,7 @@ namespace newFun
 {
     public partial class tutorialScreen : UserControl
     {
+        #region variables
         const int cpuIndex = 7;
         const int playerIndex = 8;
 
@@ -51,6 +52,8 @@ namespace newFun
         int cpuTarget;
 
         Point cpuP;
+        Point textStartPoint;
+        Point textStopPoint;
 
         Graphics offScreen;
         Graphics gGraphics;
@@ -62,8 +65,6 @@ namespace newFun
         Bitmap Lt;
         Bitmap Soldier;
         Bitmap Sniper;
-        Point textStartPoint;
-        Point textStopPoint;
         Bitmap imgPlayerChoice;
         Bitmap imgCpuChoice;
         Bitmap fire = new Bitmap(Properties.Resources.redComet, 50, 50);
@@ -71,7 +72,9 @@ namespace newFun
 
         System.Windows.Media.MediaPlayer BMPlayer;
         SoundPlayer attack = new SoundPlayer(Properties.Resources.Tank_Firing);
+        #endregion variables
 
+        #region init
         public tutorialScreen()
         {
             InitializeComponent();
@@ -97,6 +100,7 @@ namespace newFun
             Soldier = new Bitmap(Properties.Resources.SoldierIcon, Properties.Resources.ATIcon.Width / 2, Properties.Resources.ATIcon.Height);
             Sniper = new Bitmap(Properties.Resources.SniperIcon, Properties.Resources.ATIcon.Width / 2, Properties.Resources.ATIcon.Height);
         }
+
         private void tutorial_Resize(object sender, EventArgs e)
         {
             bm = new Bitmap(this.Width, this.Height);
@@ -107,8 +111,8 @@ namespace newFun
             // adjust ui to screen \/
 
             xEStop = this.Width - 300;
-            cpuP = new Point(this.Width - panel2.Width - 15, panel1.Location.Y);
-            panel2.Location = cpuP;
+            cpuP = new Point(this.Width - cpuUnits.Width - 15, playerUnits.Location.Y);
+            cpuUnits.Location = cpuP;
             cpuSoldierHealth.Location = new Point(this.Width - cpuSoldierHealth.Width - 125, cpuSoldierHealth.Location.Y);
             cpuSniperHealth.Location = new Point(this.Width - cpuSniperHealth.Width - 125, cpuSniperHealth.Location.Y);
             cpuBazookaHealth.Location = new Point(this.Width - cpuBazookaHealth.Width - 125, cpuBazookaHealth.Location.Y);
@@ -120,21 +124,18 @@ namespace newFun
             continueButton.Location = new Point(tutorialTextLabel.Location.X + tutorialTextLabel.Width / 2 - continueButton.Width / 2, tutorialTextLabel.Location.Y + 200);
             topPanel.Size = new Size(screenControl.screenWidth, tutorialTextLabel.Location.Y + tutorialTextLabel.Height);
             topPanel.Location = new Point(0, 0);
-            attackButton.Location = new Point(tutorialTextLabel.Location.X + tutorialTextLabel.Width / 2 - attackButton.Width / 2 - 10, (panel1.Location.Y + panel1.Height + attackButton.Height) / 2);
+            attackButton.Location = new Point(tutorialTextLabel.Location.X + tutorialTextLabel.Width / 2 - attackButton.Width / 2 - 10, (playerUnits.Location.Y + playerUnits.Height + attackButton.Height) / 2);
 
             // clear the troop selections and health labels from screen \/
 
             clearUi(true);
         }
+        #endregion init
 
-        private void returnToTitle()
-        {
-            screenControl.changeScreen(this, "TitleScreen"); // does what you think
-        }
-
+        #region userResponse
         private void troopSelection_SelectedValueChanged(object sender, EventArgs e)
         {
-            int index = getCheckedIndex(panel1, sender); // finds the radio button pressed
+            int index = getCheckedIndex(playerUnits, sender); // finds the radio button pressed
 
             //assigns the radio button to btn to be used later \/
 
@@ -184,7 +185,7 @@ namespace newFun
 
         private void cpuUnits_SelectedValueChanged(object sender, EventArgs e)
         {
-            cpuTarget = getCheckedIndex(panel2, sender); // finds the radio button selected
+            cpuTarget = getCheckedIndex(cpuUnits, sender); // finds the radio button selected
             int index = cpuTarget;
 
             // assigns the radio button to Ebtn for later use \/
@@ -233,6 +234,26 @@ namespace newFun
             }
         }
 
+        private void button1_Click(object sender, EventArgs e) // attack button click
+        {
+            clearUi(true);
+            resetAnim();
+            playerSoldierHealth.Text = "82";
+            cpuSoldierHealth.Text = "25";
+            btn.Checked = false;
+            Ebtn.Checked = false;
+            turnCounter++;
+            animationTimer.Enabled = true;
+            attackButton.Visible = false;
+        }
+
+        private void continueButton_Click(object sender, EventArgs e)
+        {
+            tutorialStep++;
+        }
+        #endregion userResponse
+
+        #region animation
         private void timer1_Tick(object sender, EventArgs e)
         {
             // animations for player and cpu \/
@@ -307,6 +328,11 @@ namespace newFun
                         xStart -= 10;
                         index++;
 
+                        if(index == 1)
+                        {
+                            attack.Play();
+                        }
+
                         if (index > 3)
                         {
                             movebackAnim = false;
@@ -362,6 +388,11 @@ namespace newFun
                         xEStart += 10;
                         Eindex++;
 
+                        if (Eindex == 1)
+                        {
+                            attack.Play();
+                        }
+
                         if (Eindex > 3)
                         {
                             EmovebackAnim = false;
@@ -413,12 +444,13 @@ namespace newFun
                     if (EmovebackAnim && movebackAnim && waitECount > 10)
                     {
                         xEStart += 10;
-                        if (Eimage != Soldier && Eimage != Sniper)
-                        {
-
-                        }
 
                         Eindex++;
+
+                        if (Eindex == 1)
+                        {
+                            attack.Play();
+                        }
 
                         if (Eindex > 3)
                         {
@@ -473,12 +505,13 @@ namespace newFun
                     if (movebackAnim && EanimationDone && waitCount > 10 && !isDestruction)
                     {
                         xStart -= 10;
-                        if (image != Soldier && image != Sniper)
-                        {
-                            
-                        }
 
                         index++;
+
+                        if (index == 1)
+                        {
+                            attack.Play();
+                        }
 
                         if (index > 3)
                         {
@@ -489,7 +522,7 @@ namespace newFun
                 }
             }
 
-            //decides who to "flicker"  depending on what unit is destroyied
+            //decides who to "flicker" depending on what unit is destroyied \/
 
             if ((!isDestruction && isYourTurn && animationDone && EanimationDone && isCounterDestruction) || (isDestruction && !isYourTurn && EanimationDone))
             {
@@ -544,7 +577,7 @@ namespace newFun
                 offScreen.DrawImage(Eimage, xEStart, yEStart);
             }
 
-            if (animationDone && EanimationDone && !willDestroy && !willCounterDestroy)
+            if (animationDone && EanimationDone && !willDestroy && !willCounterDestroy) // finishes the anim
             {
                 imgCpuChoice = null;
                 imgPlayerChoice = null;
@@ -553,7 +586,7 @@ namespace newFun
 
             Eimage.RotateFlip(RotateFlipType.Rotate180FlipY);
 
-            if (isAnimationComplete)
+            if (isAnimationComplete) // return to troop selection logic
             {
                 offScreen.DrawImage(BackgroundImage, 0, 0, Width, Height);
                 willDestroy = false;
@@ -568,25 +601,12 @@ namespace newFun
             }
         }
 
-        private void button1_Click(object sender, EventArgs e) // attack button click
-        {
-            clearUi(true);
-            resetAnim();
-            playerSoldierHealth.Text = "82";
-            cpuSoldierHealth.Text = "25";
-            btn.Checked = false;
-            Ebtn.Checked = false;
-            turnCounter++;
-            animationTimer.Enabled = true;
-            attackButton.Visible = false;
-        }
-
         private void clearUi(bool isClear) // clears or draws screen before/after anim
         {
             if (isClear)
             {
-                panel2.Visible = false;
-                panel1.Visible = false;
+                cpuUnits.Visible = false;
+                playerUnits.Visible = false;
                 cpuSoldierHealth.Visible = false;
                 cpuSniperHealth.Visible = false;
                 cpuBazookaHealth.Visible = false;
@@ -604,8 +624,8 @@ namespace newFun
             }
             else
             {
-                panel2.Visible = true;
-                panel1.Visible = true;
+                cpuUnits.Visible = true;
+                playerUnits.Visible = true;
                 cpuSoldierHealth.Visible = true;
                 cpuSniperHealth.Visible = true;
                 cpuBazookaHealth.Visible = true;
@@ -623,6 +643,33 @@ namespace newFun
             }
         }
 
+        private void resetAnim() // clears vars for next anim
+        {
+            yStart = this.Height - Properties.Resources.ATIcon.Height;
+            yStop = this.Height - Properties.Resources.ATIcon.Height;
+            xEStart = this.Width;
+            yEStart = yStart;
+            yEStop = yStop;
+            isAnimationComplete = false;
+            EanimationDone = false;
+            animationDone = false;
+            movebackAnim = false;
+            EmovebackAnim = false;
+            xStart = -100;
+            index = 0;
+            Eindex = 0;
+            flickerIndex = 0;
+            waitCount = 0;
+            waitECount = 0;
+        }
+        #endregion animation
+
+        #region misc
+        private void returnToTitle()
+        {
+            screenControl.changeScreen(this, "TitleScreen"); // does what you think
+        }
+
         private void tutorialTimer_Tick(object sender, EventArgs e)
         {
             // the stages for the tutorial \/
@@ -633,8 +680,8 @@ namespace newFun
                     break;
                 case 2:
                     tutorialTextLabel.Text = "Look over here, this is your troop list which shows all of your units";
-                    panel1.Visible = true;
-                    panel1.Enabled = false;
+                    playerUnits.Visible = true;
+                    playerUnits.Enabled = false;
                     break;
                 case 3:
                     tutorialTextLabel.Text = "You can only select one unit to attack with, and each unit has different effectiveness depending on the enemy";
@@ -642,12 +689,12 @@ namespace newFun
                 case 4:
                     tutorialTextLabel.Text = "Why don't you choose a soldier?";
                     tutorialTimer.Enabled = false;
-                    panel1.Enabled = true;
+                    playerUnits.Enabled = true;
                     continueButton.Visible = false;
                     break;
                 case 5:
                     tutorialTextLabel.Text = "Now you can select an enemy unit to attack, for now choose soldier";
-                    panel2.Visible = true;
+                    cpuUnits.Visible = true;
                     break;
                 case 6:
                     tutorialTextLabel.Text = "When you select a target, an attack button will pop up, and up here it will display how much damage your attack will deal";
@@ -691,30 +738,7 @@ namespace newFun
             }
         }
 
-        private void continueButton_Click(object sender, EventArgs e)
-        {
-            tutorialStep++;
-        }
-
-        private void resetAnim() // clears vars for next anim
-        {
-            yStart = this.Height - Properties.Resources.ATIcon.Height;
-            yStop = this.Height - Properties.Resources.ATIcon.Height;
-            xEStart = this.Width;
-            yEStart = yStart;
-            yEStop = yStop;
-            isAnimationComplete = false;
-            EanimationDone = false;
-            animationDone = false;
-            movebackAnim = false;
-            EmovebackAnim = false;
-            xStart = -100;
-            index = 0;
-            Eindex = 0;
-            flickerIndex = 0;
-            waitCount = 0;
-            waitECount = 0;
-        }
+        
         private int getCheckedIndex(Panel panel, object sender) // finds which r button is clicked
         {
             int checkedIndex = 0;
@@ -773,5 +797,6 @@ namespace newFun
             panel.Controls.Add(hvy);
             panel.Controls.Add(at);
         }
+        #endregion misc
     }
 }

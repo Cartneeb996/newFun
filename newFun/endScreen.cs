@@ -17,7 +17,7 @@ namespace newFun
         public endScreen()
         {
             InitializeComponent();
-            if(variables.victory)
+            if(variables.victory) // choses the proper sound and background to display
             {
                 BackgroundImage = Properties.Resources.victory;
                 endGameLabel.Text = "Congratz!\nYou Win";
@@ -31,9 +31,10 @@ namespace newFun
             }
         }
 
-        private void endScreen_Resize(object sender, EventArgs e)
+        private void endScreen_Resize(object sender, EventArgs e) // fits the ui to the screen
         {
             endGameLabel.Location = new Point(Width / 2 - endGameLabel.Width /2, Height / 2 - endGameLabel.Height/2);
+            returnButton.Location = new Point(endGameLabel.Location.X + endGameLabel.Width / 2 - returnButton.Width / 2, endGameLabel.Location.Y + endGameLabel.Height + 50);
         }
 
         private void returnButton_Click(object sender, EventArgs e)

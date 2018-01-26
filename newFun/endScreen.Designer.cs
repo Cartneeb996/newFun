@@ -48,9 +48,13 @@
             // returnButton
             // 
             this.returnButton.BackColor = System.Drawing.Color.Transparent;
+            this.returnButton.FlatAppearance.BorderSize = 0;
+            this.returnButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.returnButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.returnButton.ForeColor = System.Drawing.Color.Blue;
             this.returnButton.Location = new System.Drawing.Point(403, 218);
             this.returnButton.Name = "returnButton";
-            this.returnButton.Size = new System.Drawing.Size(75, 23);
+            this.returnButton.Size = new System.Drawing.Size(342, 48);
             this.returnButton.TabIndex = 1;
             this.returnButton.Text = "Return To Title";
             this.returnButton.UseVisualStyleBackColor = false;

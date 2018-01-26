@@ -122,7 +122,7 @@
             this.dataColumn60 = new System.Data.DataColumn();
             this.tutorialTimer = new System.Windows.Forms.Timer(this.components);
             this.topPanel = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
+            this.cpuUnits = new System.Windows.Forms.Panel();
             this.cpuSoldierButton = new System.Windows.Forms.RadioButton();
             this.cpuSniperButton = new System.Windows.Forms.RadioButton();
             this.cpuAntiTankButton = new System.Windows.Forms.RadioButton();
@@ -130,7 +130,7 @@
             this.cpuLtButton = new System.Windows.Forms.RadioButton();
             this.cpuMdButton = new System.Windows.Forms.RadioButton();
             this.cpuBazookaButton = new System.Windows.Forms.RadioButton();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.playerUnits = new System.Windows.Forms.Panel();
             this.SoldierButton = new System.Windows.Forms.RadioButton();
             this.SniperButton = new System.Windows.Forms.RadioButton();
             this.AntiTankButton = new System.Windows.Forms.RadioButton();
@@ -138,7 +138,6 @@
             this.LtButton = new System.Windows.Forms.RadioButton();
             this.MdButton = new System.Windows.Forms.RadioButton();
             this.BazookaButton = new System.Windows.Forms.RadioButton();
-            this.button4 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.matchupData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SoldierMatchup)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SniperMatchup)).BeginInit();
@@ -150,8 +149,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.CpuHealthValues)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerHealthValues)).BeginInit();
             this.topPanel.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.cpuUnits.SuspendLayout();
+            this.playerUnits.SuspendLayout();
             this.SuspendLayout();
             // 
             // continueButton
@@ -865,11 +864,10 @@
             // topPanel
             // 
             this.topPanel.BackColor = System.Drawing.Color.Transparent;
-            this.topPanel.Controls.Add(this.panel2);
-            this.topPanel.Controls.Add(this.panel1);
+            this.topPanel.Controls.Add(this.cpuUnits);
+            this.topPanel.Controls.Add(this.playerUnits);
             this.topPanel.Controls.Add(this.tutorialTextLabel);
             this.topPanel.Controls.Add(this.attackButton);
-            this.topPanel.Controls.Add(this.button4);
             this.topPanel.Controls.Add(this.playerSoldierHealth);
             this.topPanel.Controls.Add(this.playerSniperHealth);
             this.topPanel.Controls.Add(this.playerBazookaHealth);
@@ -882,20 +880,20 @@
             this.topPanel.Size = new System.Drawing.Size(915, 373);
             this.topPanel.TabIndex = 88;
             // 
-            // panel2
+            // cpuUnits
             // 
-            this.panel2.Controls.Add(this.cpuSoldierButton);
-            this.panel2.Controls.Add(this.cpuSniperButton);
-            this.panel2.Controls.Add(this.cpuAntiTankButton);
-            this.panel2.Controls.Add(this.cpuHvyButton);
-            this.panel2.Controls.Add(this.cpuLtButton);
-            this.panel2.Controls.Add(this.cpuMdButton);
-            this.panel2.Controls.Add(this.cpuBazookaButton);
-            this.panel2.Location = new System.Drawing.Point(671, 110);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(102, 117);
-            this.panel2.TabIndex = 66;
-            this.panel2.Visible = false;
+            this.cpuUnits.Controls.Add(this.cpuSoldierButton);
+            this.cpuUnits.Controls.Add(this.cpuSniperButton);
+            this.cpuUnits.Controls.Add(this.cpuAntiTankButton);
+            this.cpuUnits.Controls.Add(this.cpuHvyButton);
+            this.cpuUnits.Controls.Add(this.cpuLtButton);
+            this.cpuUnits.Controls.Add(this.cpuMdButton);
+            this.cpuUnits.Controls.Add(this.cpuBazookaButton);
+            this.cpuUnits.Location = new System.Drawing.Point(671, 110);
+            this.cpuUnits.Name = "cpuUnits";
+            this.cpuUnits.Size = new System.Drawing.Size(102, 117);
+            this.cpuUnits.TabIndex = 66;
+            this.cpuUnits.Visible = false;
             // 
             // cpuSoldierButton
             // 
@@ -998,20 +996,20 @@
             this.cpuBazookaButton.UseVisualStyleBackColor = true;
             this.cpuBazookaButton.CheckedChanged += new System.EventHandler(this.cpuUnits_SelectedValueChanged);
             // 
-            // panel1
+            // playerUnits
             // 
-            this.panel1.Controls.Add(this.SoldierButton);
-            this.panel1.Controls.Add(this.SniperButton);
-            this.panel1.Controls.Add(this.AntiTankButton);
-            this.panel1.Controls.Add(this.HvyButton);
-            this.panel1.Controls.Add(this.LtButton);
-            this.panel1.Controls.Add(this.MdButton);
-            this.panel1.Controls.Add(this.BazookaButton);
-            this.panel1.Location = new System.Drawing.Point(12, 110);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(100, 111);
-            this.panel1.TabIndex = 87;
-            this.panel1.Visible = false;
+            this.playerUnits.Controls.Add(this.SoldierButton);
+            this.playerUnits.Controls.Add(this.SniperButton);
+            this.playerUnits.Controls.Add(this.AntiTankButton);
+            this.playerUnits.Controls.Add(this.HvyButton);
+            this.playerUnits.Controls.Add(this.LtButton);
+            this.playerUnits.Controls.Add(this.MdButton);
+            this.playerUnits.Controls.Add(this.BazookaButton);
+            this.playerUnits.Location = new System.Drawing.Point(12, 110);
+            this.playerUnits.Name = "playerUnits";
+            this.playerUnits.Size = new System.Drawing.Size(100, 111);
+            this.playerUnits.TabIndex = 87;
+            this.playerUnits.Visible = false;
             // 
             // SoldierButton
             // 
@@ -1104,19 +1102,6 @@
             this.BazookaButton.UseVisualStyleBackColor = true;
             this.BazookaButton.CheckedChanged += new System.EventHandler(this.troopSelection_SelectedValueChanged);
             // 
-            // button4
-            // 
-            this.button4.BackColor = System.Drawing.Color.Red;
-            this.button4.FlatAppearance.BorderSize = 0;
-            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button4.Location = new System.Drawing.Point(647, 338);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(84, 38);
-            this.button4.TabIndex = 57;
-            this.button4.Text = "Return to Title screen";
-            this.button4.UseVisualStyleBackColor = false;
-            this.button4.Visible = false;
-            // 
             // tutorialScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1149,10 +1134,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.PlayerHealthValues)).EndInit();
             this.topPanel.ResumeLayout(false);
             this.topPanel.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.cpuUnits.ResumeLayout(false);
+            this.cpuUnits.PerformLayout();
+            this.playerUnits.ResumeLayout(false);
+            this.playerUnits.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1253,8 +1238,7 @@
         private System.Data.DataColumn dataColumn60;
         private System.Windows.Forms.Timer tutorialTimer;
         private System.Windows.Forms.Panel topPanel;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel playerUnits;
         private System.Windows.Forms.RadioButton SoldierButton;
         private System.Windows.Forms.RadioButton SniperButton;
         private System.Windows.Forms.RadioButton AntiTankButton;
@@ -1262,7 +1246,7 @@
         private System.Windows.Forms.RadioButton LtButton;
         private System.Windows.Forms.RadioButton MdButton;
         private System.Windows.Forms.RadioButton BazookaButton;
-        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Panel cpuUnits;
         private System.Windows.Forms.RadioButton cpuSoldierButton;
         private System.Windows.Forms.RadioButton cpuSniperButton;
         private System.Windows.Forms.RadioButton cpuAntiTankButton;

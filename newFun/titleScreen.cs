@@ -12,15 +12,18 @@ namespace newFun
 {
     public partial class titleScreen : UserControl
     {
-       // System.Windows.Media.MediaPlayer BMPlayer; 
+        //modes
+        //easy: cpu health = 50
+        //normal: cpu health = 100
+        //expert: cpu health = 150
+
         public titleScreen()
         {
             InitializeComponent();
-            //variavles.TMPlayer = new System.Windows.Media.MediaPlayer();
+            // init sound and images
             variables.TMPlayer.Open(new Uri(Application.StartupPath + "/Resources/title_background_music.mp3"));
             variables.TMPlayer.Stop();
             variables.TMPlayer.Play();
-            //screenControl.setComponentValues(this);
             defaultOverride();
 
             rightSideTank.Size = new Size(rightSideTank.Width * 2, rightSideTank.Height * 2);
@@ -31,11 +34,11 @@ namespace newFun
             variables.TMPlayer.Open(new Uri(Application.StartupPath + "/Resources/title_background_music.mp3"));
             variables.TMPlayer.Stop();
             variables.TMPlayer.Play();
+            //loops music
         }
 
-        private void startButton_Click(object sender, EventArgs e)
+        private void startButton_Click(object sender, EventArgs e) // displays the mode btns
         {
-            //screenControl.changeScreen(this, "GameScreen");
             startButton.Visible = false;
             tutorialButton.Visible = false;
             easyButton.Location = tutorialButton.Location;
@@ -59,7 +62,7 @@ namespace newFun
             }
         }
 
-        private void titleScreen_Resize(object sender, EventArgs e)
+        private void titleScreen_Resize(object sender, EventArgs e) // fit ui to screen
         {
             gameTitleLabel.Size = new Size(Width, gameTitleLabel.Height);
             gameTitleLabel.Location = new Point(gameTitleLabel.Location.X - 30, gameTitleLabel.Location.Y + 50);
